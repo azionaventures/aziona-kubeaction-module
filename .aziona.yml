@@ -1,0 +1,36 @@
+version: "1"
+
+options:
+  interpolation: true
+  session_clean_before: False
+  session_clean_after: False
+
+targets:
+  kubeaction_apply:
+    stages:
+      kubeconfig: 
+        module: aziona.packages.kubernetes.kubeconfig
+        args: 
+          --cluster-name: ${EKS_CLUSTER_NAME}
+          --region: ${EKS_AWS_REGION}
+          --kube-config: ${KUBECONFIG}
+      kubeaction_apply: 
+        module: aziona.packages.kubernetes.kubeaction
+        args: 
+          --wait-readiness: True
+          --manifest-path: ${MANIFEST_PATH}
+          --kustomize-image: DOCKER_IMAGE=${DOCKER_IMAGE},DOCKER_IMAGE_WORKER=${DOCKER_IMAGE_WORKER},DOCKER_IMAGE_NGINX=${DOCKER_IMAGE_NGINX},DOCKER_IMAGE_LOGROTATE=${DOCKER_IMAGE_LOGROTATE},DOCKER_IMAGE_FLUENTD=${DOCKER_IMAGE_FLUENTD},DOCKER_IMAGE_DATADOG=${DOCKER_IMAGE_DATADOG}
+          --action: apply
+  kubeaction_delete:
+    stages:
+      kubeconfig: 
+        module: aziona.packages.kubernetes.kubeconfig
+        args: 
+          --cluster-name: ${EKS_CLUSTER_NAME}
+          --region: ${EKS_AWS_REGION}
+          --kube-config: ${KUBECONFIG}
+      kubeaction_delete: 
+        module: aziona.packages.kubernetes.kubeaction
+        args: 
+          --manifest-path: ${MANIFEST_PATH}
+          --action: delete
